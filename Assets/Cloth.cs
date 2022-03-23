@@ -7,38 +7,47 @@ using UnityEngine;
 
 public class Cloth : MonoBehaviour
 {
-    private MeshFilter meshFilter;
-    private Simulator simulator;
+    private MeshFilter _meshFilter;
+    private Simulator _simulator;
+    private readonly List<CollisionObject> _collisionObjects = new();
+
+    private const int _simulationIterNum = 5;
+    private const int _collisionIterNum = 5;
 
     void Start()
     {
         Application.targetFrameRate = 60;
-        meshFilter = GetComponent<MeshFilter>();
+        _meshFilter = GetComponent<MeshFilter>();
         var gen = new TestMeshGenerator();
         var mesh = gen.Generate(20, 12, new(-10, 10, -10));
-        meshFilter.mesh = mesh;
+        _meshFilter.mesh = mesh;
         var cloth = new ClothComponent(1f, 0.25f, mesh.vertices, mesh.triangles);
         cloth.AddDistanceConstraints();
+        //cloth.Constraints.Add(new FixedPointConstraint(cloth, mesh.triangles[0], mesh.vertices[mesh.triangles[0]]));
         // cloth.AddFEMTriangleConstraints();
-        var colliders = new List<CollisionObject>();
-        var objects = FindObjectsOfType<GameObject>();
-        foreach (var obj in objects)
+
+        foreach (var c in FindObjectsOfType<SphereCollider>(false))
         {
-            if (obj.name.StartsWith("Sphere"))
-            {
-                var position = transform.InverseTransformPoint(obj.transform.position);
-                var size = obj.GetComponent<MeshRenderer>().bounds.size.x / 2;
-                colliders.Add(new SphereCollisionObject(position, size));
-            }
+            _collisionObjects.Add(new SphereCollisionObject(c));
         }
 
-        simulator = new(cloth, 3, 2, colliders.ToArray());
-        simulator.Forces.Add(new GravityForce());
+        foreach (var c in FindObjectsOfType<BoxCollider>(false))
+        {
+            _collisionObjects.Add(new BoxCollisionObject(c));
+        }
+
+        foreach (var c in FindObjectsOfType<CapsuleCollider>(false))
+        {
+            _collisionObjects.Add(new CapsuleCollisionObject(c));
+        }
+
+        _simulator = new(cloth, _simulationIterNum, _collisionIterNum, _collisionObjects.ToArray(), transform);
+        _simulator.Forces.Add(new GravityForce());
     }
 
     void Update()
     {
-        foreach (var c in simulator.Cloth.Constraints)
+        foreach (var c in _simulator.Cloth.Constraints)
         {
             if (c is FixedPointConstraint fc)
             {
@@ -47,11 +56,11 @@ public class Cloth : MonoBehaviour
             }
         }
 
-        for (var i = 0; i < 3; i++)
+        for (var i = 0; i < _simulationIterNum; i++)
         {
-            simulator.Simulate(1.0f / 60 / 3);
+            _simulator.Simulate(1.0f / 60 / _simulationIterNum);
         }
 
-        meshFilter.mesh.vertices = simulator.Cloth.Positions;
+        _meshFilter.mesh.vertices = _simulator.Cloth.Positions;
     }
 }

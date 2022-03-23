@@ -104,12 +104,12 @@
         public static Matrix3x2 operator *(Matrix3x2 left, Matrix2x2 right)
         {
             return new Matrix3x2(
-                left[0, 0] * right[0, 0] + left[0, 1] * right[1, 0],
-                left[0, 0] * right[0, 1] + left[0, 1] * right[1, 1],
-                left[1, 0] * right[0, 0] + left[1, 1] * right[1, 0],
-                left[1, 0] * right[0, 1] + left[1, 1] * right[1, 1],
-                left[2, 0] * right[0, 0] + left[2, 1] * right[1, 0],
-                left[2, 0] * right[0, 1] + left[2, 1] * right[1, 1]
+                (left[0, 0] * right[0, 0]) + (left[0, 1] * right[1, 0]),
+                (left[0, 0] * right[0, 1]) + (left[0, 1] * right[1, 1]),
+                (left[1, 0] * right[0, 0]) + (left[1, 1] * right[1, 0]),
+                (left[1, 0] * right[0, 1]) + (left[1, 1] * right[1, 1]),
+                (left[2, 0] * right[0, 0]) + (left[2, 1] * right[1, 0]),
+                (left[2, 0] * right[0, 1]) + (left[2, 1] * right[1, 1])
             );
         }
         public static Matrix3x2 operator *(Matrix3x2 left, float right)

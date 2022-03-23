@@ -1,20 +1,22 @@
 ﻿using Assets.Contraints;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets
 {
     class ClothComponent
     {
-        public Vector3[] Positions { get; }
-        public Vector3[] NewPositions { get; }
-        public Vector3[] Velocities { get; }
-        public Vector3[] NoDampingVelocities { get; }
-        public List<ConstraintBase> Constraints { get; }
-        public float Damping { get; set; }
-        public float Mass { get; set; }
-        public int[] Triangles { get; set; }
+        public readonly Vector3[] Positions;
+        public readonly Vector3[] NewPositions;
+        public readonly Vector3[] Velocities;
+        public readonly Vector3[] NoDampingVelocities;
+        public readonly List<ConstraintBase> Constraints;
+        public float Damping;
+        public float Mass;
+        public readonly int[] Triangles;
+        public readonly int[][] AdjointTriangles;
         public (Vector3 Vec, int Count)[] Delta { get; set; }
 
         public ClothComponent(float damping, float mass, Vector3[] vertices, int[] triangles)
@@ -28,6 +30,25 @@ namespace Assets
             Damping = damping;
             Mass = mass;
             Triangles = triangles;
+            AdjointTriangles = new int[triangles.Length][];
+
+            var count = triangles.Length / 3;
+            for (var i = 0; i < vertices.Length; i++)
+            {
+                var adjointTriangles = new HashSet<int>();
+                for (var j = 0; j < count; j++)
+                {
+                    if (i == triangles[j * 3] ||
+                        i == triangles[(j * 3) + 1] ||
+                        i == triangles[(j * 3) + 2])
+                    {
+                        adjointTriangles.Add(triangles[j * 3]);
+                        adjointTriangles.Add(triangles[(j * 3) + 1]);
+                        adjointTriangles.Add(triangles[(j * 3) + 2]);
+                    }
+                }
+                AdjointTriangles[i] = adjointTriangles.ToArray();
+            }
 
             for (var i = 0; i < vertices.Length; i++)
             {

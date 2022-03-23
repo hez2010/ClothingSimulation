@@ -3,64 +3,37 @@ using UnityEngine;
 
 namespace Assets.Collisions
 {
-    class SphereCollisionObject : CollisionObject
+    class SphereCollisionObject : CollisionObject, IHasCollider
     {
-        private readonly Vector3 _center;
-        private readonly float _radius;
-        public SphereCollisionObject(Vector3 center, float radius)
+        private readonly SphereCollider _collider;
+        public SphereCollisionObject(SphereCollider collider)
         {
-            _center = center;
-            _radius = radius;
-            Bounds = new Bounds(center, new Vector3(radius * 2, radius * 2, radius * 2));
+            _collider = collider;
+            UpdateBounds();
         }
+
+        public Collider Collider => _collider;
 
         public override bool Hit(int index, Vector3 position, Vector3 velocity, float time, out CollisionResult? result)
         {
-            var dis = position - _center;
-            var a = velocity.normalized.Dot(velocity.normalized);
-            var b = dis.Dot(velocity.normalized);
-            var c = dis.Dot(dis) - _radius * _radius;
-            var discriminant = b * b - a * c;
-            if (discriminant >= 0)
+            var localPosition = _collider.transform.InverseTransformPoint(position);
+            var localVelocity = _collider.transform.InverseTransformVector(velocity);
+
+            if (HitDetector.HitSphere(_collider.center, _collider.radius, localPosition, localVelocity, time, out var reachTime))
             {
-                var time1 = (-b - Mathf.Sqrt(discriminant)) / a;
-                var time2 = (-b + Mathf.Sqrt(discriminant)) / a;
-                var reachTime = 0f;
-                var hit = false;
-
-                if (time1 < time && time1 >= 0)
-                {
-                    reachTime = time1;
-                    hit = true;
-                }
-                else if (time2 < time && time2 >= 0)
-                {
-                    reachTime = time2;
-                    hit = true;
-                }
-                else if (time1 < 0 && time2 > 0)
-                {
-                    // inside
-                    reachTime = time1;
-                    hit = true;
-                }
-                else if (time2 < 0 && time1 > 0)
-                {
-                    // inside
-                    reachTime = time2;
-                    hit = true;
-                }
-
-                if (hit)
-                {
-                    var hitPosition = position + velocity * reachTime;
-                    result = new CollisionResult(index, this, hitPosition, (hitPosition - _center) / _radius, reachTime);
-                    return true;
-                }
+                var hitPosition = position + (velocity * reachTime);
+                var localHitPosition = localPosition + (localVelocity * reachTime);
+                result = new CollisionResult(index, this, hitPosition, _collider.transform.TransformDirection((localHitPosition - _collider.center) / _collider.radius), reachTime);
+                return true;
             }
 
             result = null;
             return false;
+        }
+
+        public override void UpdateBounds()
+        {
+            Bounds = new Bounds(_collider.bounds.center, _collider.bounds.size);
         }
     }
 }

@@ -2,7 +2,6 @@
 using Assets.Forces;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -13,17 +12,17 @@ namespace Assets
     {
         private readonly int _collisionIterNum;
         private readonly int _simulationIterNum;
+        private readonly Transform _transform;
 
         public readonly ClothComponent Cloth;
         public readonly List<ForceBase> Forces = new();
         public readonly CollisionObject Colliders;
 
-        private const int _collisionTimeout = 1000;
-
-        public Simulator(ClothComponent cloth, int simulationIterNum, int collisionIterNum, CollisionObject[] colliders)
+        public Simulator(ClothComponent cloth, int simulationIterNum, int collisionIterNum, CollisionObject[] colliders, Transform transform)
         {
             _simulationIterNum = simulationIterNum;
             _collisionIterNum = collisionIterNum;
+            _transform = transform;
             Cloth = cloth;
             Colliders = new BVHCollisionObject(colliders);
             Array.Clear(Cloth.NoDampingVelocities, 0, Cloth.NoDampingVelocities.Length);
@@ -33,14 +32,12 @@ namespace Assets
         {
             public readonly ChannelReader<CollisionResult> Channel;
             public readonly TaskCompletionSource<bool> CompletionSource;
-            public readonly CancellationToken CancellationToken;
-            public readonly HashSet<int> CollidedTriangles;
+            public readonly Dictionary<int, CollisionResult> CollidedTriangles;
 
-            public CollisionTaskState(ChannelReader<CollisionResult> channel, TaskCompletionSource<bool> completionSource, CancellationToken cancellationToken, HashSet<int> collidedTriangles)
+            public CollisionTaskState(ChannelReader<CollisionResult> channel, TaskCompletionSource<bool> completionSource, Dictionary<int, CollisionResult> collidedTriangles)
             {
                 Channel = channel;
                 CompletionSource = completionSource;
-                CancellationToken = cancellationToken;
                 CollidedTriangles = collidedTriangles;
             }
         }
@@ -68,74 +65,30 @@ namespace Assets
                 Cloth.Project(1.0f / _simulationIterNum);
             }
 
-
+            Colliders.UpdateBounds();
             for (var i = 0; i < _collisionIterNum; i++)
             {
-                var channel = Channel.CreateUnbounded<CollisionResult>();
-                var tasks = new List<Task>();
+                var collisions = new List<CollisionResult>();
                 for (var j = 0; j < Cloth.Positions.Length; j++)
                 {
-                    var index = j;
-                    tasks.Add(Task.Run(async () =>
+                    var p1 = _transform.TransformPoint(Cloth.NewPositions[j]);
+                    var p2 = _transform.TransformPoint(Cloth.Positions[j]);
+                    var dx = p1 - p2;
+                    var v = dx / dt;
+
+                    if (Colliders.Hit(j, p2, v, dt, out var result))
                     {
-                        var dx = Cloth.NewPositions[index] - Cloth.Positions[index];
-                        var v = dx / dt;
-                        if (Colliders.Hit(index, Cloth.Positions[index], v, dt, out var result))
-                        {
-                            await channel.Writer.WriteAsync(result.Value);
-                        }
-                    }));
+                        collisions.Add(result.Value);
+                    }
                 }
 
-                var tcs = new TaskCompletionSource<bool>();
-                Task.WhenAll(tasks).ContinueWith(_ => channel.Writer.Complete());
-
-                using var cts = new CancellationTokenSource();
-                var collidedTriangles = new HashSet<int>();
-
-                if (ThreadPool.UnsafeQueueUserWorkItem(async state =>
+                for (var c = 0; c < collisions.Count; c++)
                 {
-                    if (state is CollisionTaskState ctState)
+                    var collision = collisions[c];
+                    for (var t = 0; t < Cloth.AdjointTriangles[collision.Index].Length; t++)
                     {
-                        try
-                        {
-                            while (await ctState.Channel.WaitToReadAsync(ctState.CancellationToken))
-                            {
-                                var collision = await ctState.Channel.ReadAsync(ctState.CancellationToken);
-                                var count = Cloth.Triangles.Length / 3;
-                                for (var t = 0; t < count; t++)
-                                {
-                                    if (Cloth.Triangles[t * 3] == collision.Index ||
-                                        Cloth.Triangles[(t * 3) + 1] == collision.Index ||
-                                        Cloth.Triangles[(t * 3) + 2] == collision.Index)
-                                    {
-                                        ctState.CollidedTriangles.Add(Cloth.Triangles[t * 3]);
-                                        ctState.CollidedTriangles.Add(Cloth.Triangles[(t * 3) + 1]);
-                                        ctState.CollidedTriangles.Add(Cloth.Triangles[(t * 3) + 2]);
-                                    }
-                                }
-                            }
-                            ctState.CompletionSource.SetResult(false);
-                        }
-                        catch (TaskCanceledException)
-                        {
-                            // ignored
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.LogError(ex.ToString());
-                        }
-                    }
-                }, new CollisionTaskState(channel.Reader, tcs, cts.Token, collidedTriangles)))
-                {
-                    if (!tcs.Task.Wait(_collisionTimeout))
-                    {
-                        cts.Cancel();
-                    }
-
-                    foreach (var triangle in collidedTriangles)
-                    {
-                        Cloth.NewPositions[triangle] = Cloth.Positions[triangle];
+                        var index = Cloth.AdjointTriangles[collision.Index][t];
+                        Cloth.NewPositions[index] = Cloth.Positions[index];
                     }
                 }
             }

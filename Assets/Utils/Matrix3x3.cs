@@ -188,10 +188,10 @@ namespace Assets.Utils
 
         public Matrix3x3 Inverse()
         {
-            var invMatrix = new Matrix3x3(_m11 * _m22 - _m12 * _m21, _m02 * _m21 - _m01 * _m22, _m01 * _m12 - _m02 * _m11,
-                _m00 * _m22 - _m02 * _m20, _m00 * _m22 - _m02 * _m20, _m02 * _m10 - _m00 * _m12,
-                _m10 * _m21 - _m11 * _m20, _m01 * _m20 - _m00 * _m21, _m00 * _m11 - _m01 * _m10);
-            var iterator = _m00 * invMatrix[0, 0] + _m01 * invMatrix[1, 0] + _m02 * invMatrix[2, 0];
+            var invMatrix = new Matrix3x3((_m11 * _m22) - (_m12 * _m21), (_m02 * _m21) - (_m01 * _m22), (_m01 * _m12) - (_m02 * _m11),
+                (_m00 * _m22) - (_m02 * _m20), (_m00 * _m22) - (_m02 * _m20), (_m02 * _m10) - (_m00 * _m12),
+                (_m10 * _m21) - (_m11 * _m20), (_m01 * _m20) - (_m00 * _m21), (_m00 * _m11) - (_m01 * _m10));
+            var iterator = (_m00 * invMatrix[0, 0]) + (_m01 * invMatrix[1, 0]) + (_m02 * invMatrix[2, 0]);
 
             if (Mathf.Abs(iterator) <= Epsilon)
             {
@@ -212,9 +212,9 @@ namespace Assets.Utils
 
         public float Determinant()
         {
-            return this[0, 0] * (this[1, 1] * this[2, 2]) - this[1, 2] * this[2, 1]
-                - this[0, 1] * (this[1, 0] * this[2, 2] - this[1, 2] * this[2, 0])
-                + this[0, 2] * (this[1, 0] * this[2, 1] - this[1, 1] * this[2, 0]);
+            return (this[0, 0] * (this[1, 1] * this[2, 2])) - (this[1, 2] * this[2, 1])
+                - (this[0, 1] * ((this[1, 0] * this[2, 2]) - (this[1, 2] * this[2, 0])))
+                + (this[0, 2] * ((this[1, 0] * this[2, 1]) - (this[1, 1] * this[2, 0])));
         }
 
         public float FrobeniusInnerProduct(Matrix2x2 m)

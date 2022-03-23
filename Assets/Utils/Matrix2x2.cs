@@ -143,7 +143,7 @@ namespace Assets.Utils
 
         public float Determinant()
         {
-            return this[0, 0] * this[1, 1] - this[0, 1] * this[1, 0];
+            return (this[0, 0] * this[1, 1]) - (this[0, 1] * this[1, 0]);
         }
 
         public float FrobeniusInnerProduct(Matrix2x2 m)
@@ -228,9 +228,9 @@ namespace Assets.Utils
             // Otherwise, we need to compute A^T*A
             else
             {
-                float j = this[0, 0] * this[0, 0] + this[1, 0] * this[1, 0],
-                    k = this[0, 1] * this[0, 1] + this[1, 1] * this[1, 1],
-                    v_c = this[0, 0] * this[0, 1] + this[1, 0] * this[1, 1];
+                float j = (this[0, 0] * this[0, 0]) + (this[1, 0] * this[1, 0]),
+                    k = (this[0, 1] * this[0, 1]) + (this[1, 1] * this[1, 1]),
+                    v_c = (this[0, 0] * this[0, 1]) + (this[1, 0] * this[1, 1]);
                 // Check to see if A^T*A is diagonal
                 if (Mathf.Abs(v_c) < Epsilon)
                 {
@@ -244,7 +244,7 @@ namespace Assets.Utils
                 {
                     float jmk = j - k,
                         jpk = j + k,
-                        root = Mathf.Sqrt(jmk * jmk + 4 * v_c * v_c),
+                        root = Mathf.Sqrt((jmk * jmk) + (4 * v_c * v_c)),
                         eig = (jpk + root) / 2,
                         s1 = Mathf.Sqrt(eig),
                         s2 = Mathf.Abs(root) < Epsilon ? s1 : Mathf.Sqrt((jpk - root) / 2);
@@ -252,16 +252,16 @@ namespace Assets.Utils
                     e.SetValue(s1, s2);
 
                     // Use eigenvectors of A^T*A as V
-                    float v_s = eig - j, len = Mathf.Sqrt(v_s * v_s + v_c * v_c);
+                    float v_s = eig - j, len = Mathf.Sqrt((v_s * v_s) + (v_c * v_c));
                     v_c /= len;
                     v_s /= len;
                     v.SetValue(v_c, -v_s, v_s, v_c);
                     // Compute w matrix as Av/s
                     w.SetValue(
-                        (this[0, 0] * v_c + this[0, 1] * v_s) / s1,
-                        (this[0, 1] * v_c - this[0, 0] * v_s) / s2,
-                        (this[1, 0] * v_c + this[1, 1] * v_s) / s1,
-                        (this[1, 1] * v_c - this[1, 0] * v_s) / s2
+                        ((this[0, 0] * v_c) + (this[0, 1] * v_s)) / s1,
+                        ((this[0, 1] * v_c) - (this[0, 0] * v_s)) / s2,
+                        ((this[1, 0] * v_c) + (this[1, 1] * v_s)) / s1,
+                        ((this[1, 1] * v_c) - (this[1, 0] * v_s)) / s2
                     );
                 }
             }
@@ -375,8 +375,8 @@ namespace Assets.Utils
         public static Vector2 operator *(Matrix2x2 left, Vector2 right)
         {
             return new Vector2(
-                    left[0, 0] * right[0] + left[0, 1] * right[1],
-                    left[1, 0] * right[0] + left[1, 1] * right[1]
+                    (left[0, 0] * right[0]) + (left[0, 1] * right[1]),
+                    (left[1, 0] * right[0]) + (left[1, 1] * right[1])
                 );
         }
     }
