@@ -16,12 +16,10 @@
         public override void Resolve(float dt)
         {
             var mass = _cloth.Mass * 2f;
-            var dx = _cloth.NewPositions[_index2] - _cloth.NewPositions[_index1];
+            var dx = _cloth.Predicts[_index2] - _cloth.Predicts[_index1];
             var correction = (dx.magnitude - _distance) / mass * dt * _stiffness * dx.normalized;
-            _cloth.Delta[_index1].Vec += correction;
-            _cloth.Delta[_index1].Count++;
-            _cloth.Delta[_index2].Vec -= correction;
-            _cloth.Delta[_index2].Count++;
+            _cloth.Predicts[_index1] += correction;
+            _cloth.Predicts[_index2] -= correction;
         }
     }
 }

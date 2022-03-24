@@ -13,7 +13,7 @@ namespace Assets.Collisions
 
         public Collider Collider => _collider;
 
-        public override bool Hit(int index, Vector3 position, Vector3 velocity, float time, out CollisionResult? result)
+        public override bool Hit(Vector3 position, Vector3 velocity, float time, out CollisionResult? result)
         {
             var localPosition = _collider.transform.InverseTransformPoint(position);
             var localVelocity = _collider.transform.InverseTransformVector(velocity);
@@ -27,7 +27,7 @@ namespace Assets.Collisions
                 out var axis,
                 out var reachTime))
             {
-                result = new CollisionResult(index, this, position + (reachTime * velocity), axis switch
+                result = new CollisionResult(this, position + (reachTime * velocity), axis switch
                 {
                     0 => new Vector3(1, 0, 0),
                     1 => new Vector3(0, 1, 0),

@@ -42,14 +42,17 @@ namespace Assets
             }
         }
 
-        public void Simulate(float dt)
+        private void DampingVelocities(float dt)
         {
             for (var i = 0; i < Cloth.Positions.Length; i++)
             {
                 Cloth.Velocities[i] -= Cloth.Damping * dt * (Cloth.Velocities[i] - Cloth.NoDampingVelocities[i]);
             }
             Array.Clear(Cloth.NoDampingVelocities, 0, Cloth.NoDampingVelocities.Length);
+        }
 
+        private void PredictPositions(float dt)
+        {
             foreach (var force in Forces)
             {
                 force.Apply(Cloth, dt);
@@ -57,47 +60,54 @@ namespace Assets
 
             for (var i = 0; i < Cloth.Positions.Length; i++)
             {
-                Cloth.NewPositions[i] = Cloth.Positions[i] + (dt * Cloth.Velocities[i]);
+                Cloth.Predicts[i] = Cloth.Positions[i] + (dt * Cloth.Velocities[i]);
             }
+        }
 
+        private void SolveConstraints()
+        {
             for (var i = 0; i < _simulationIterNum; i++)
             {
                 Cloth.Project(1.0f / _simulationIterNum);
             }
+        }
 
+        private void SolveCollisions(float dt)
+        {
             Colliders.UpdateBounds();
             for (var i = 0; i < _collisionIterNum; i++)
             {
-                var collisions = new List<CollisionResult>();
                 for (var j = 0; j < Cloth.Positions.Length; j++)
                 {
-                    var p1 = _transform.TransformPoint(Cloth.NewPositions[j]);
+                    var p1 = _transform.TransformPoint(Cloth.Predicts[j]);
                     var p2 = _transform.TransformPoint(Cloth.Positions[j]);
                     var dx = p1 - p2;
                     var v = dx / dt;
 
-                    if (Colliders.Hit(j, p2, v, dt, out var result))
+                    if (Colliders.Hit(p2, v, dt, out _))
                     {
-                        collisions.Add(result.Value);
-                    }
-                }
-
-                for (var c = 0; c < collisions.Count; c++)
-                {
-                    var collision = collisions[c];
-                    for (var t = 0; t < Cloth.AdjointTriangles[collision.Index].Length; t++)
-                    {
-                        var index = Cloth.AdjointTriangles[collision.Index][t];
-                        Cloth.NewPositions[index] = Cloth.Positions[index];
+                        for (var t = 0; t < Cloth.AdjointTriangles[j].Length; t++)
+                        {
+                            var index = Cloth.AdjointTriangles[j][t];
+                            Cloth.Predicts[index] = Cloth.Positions[index];
+                        }
                     }
                 }
             }
+        }
+
+        public void Simulate(float dt)
+        {
+            DampingVelocities(dt);
+            PredictPositions(dt);
+            SolveConstraints();
+            SolveCollisions(dt);
 
             for (var i = 0; i < Cloth.Positions.Length; i++)
             {
-                var dx = Cloth.NewPositions[i] - Cloth.Positions[i];
+                var dx = Cloth.Predicts[i] - Cloth.Positions[i];
                 Cloth.Velocities[i] = dx / dt;
-                Cloth.Positions[i] = Cloth.NewPositions[i];
+                Cloth.Positions[i] = Cloth.Predicts[i];
             }
         }
     }

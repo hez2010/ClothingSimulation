@@ -19,12 +19,12 @@ public class Cloth : MonoBehaviour
         Application.targetFrameRate = 60;
         _meshFilter = GetComponent<MeshFilter>();
         var gen = new TestMeshGenerator();
-        var mesh = gen.Generate(20, 12, new(-10, 10, -10));
+        var mesh = gen.Generate(40, 20, new(-10, 10, -10));
         _meshFilter.mesh = mesh;
         var cloth = new ClothComponent(1f, 0.25f, mesh.vertices, mesh.triangles);
         cloth.AddDistanceConstraints();
         //cloth.Constraints.Add(new FixedPointConstraint(cloth, mesh.triangles[0], mesh.vertices[mesh.triangles[0]]));
-        // cloth.AddFEMTriangleConstraints();
+        //cloth.AddFEMTriangleConstraints();
 
         foreach (var c in FindObjectsOfType<SphereCollider>(false))
         {

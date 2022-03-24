@@ -46,9 +46,9 @@ namespace Assets.Contraints
 
         public override void Resolve(float dt)
         {
-            var p0 = _cloth.NewPositions[_triangle.A];
-            var p1 = _cloth.NewPositions[_triangle.B];
-            var p2 = _cloth.NewPositions[_triangle.C];
+            var p0 = _cloth.Predicts[_triangle.A];
+            var p1 = _cloth.Predicts[_triangle.B];
+            var p2 = _cloth.Predicts[_triangle.C];
 
             // Orthotropic elasticity tensor
             var C = new Matrix3x3();
@@ -116,12 +116,9 @@ namespace Assets.Contraints
                 var correction1 = -(s * _cloth.Mass) * dt * gradC[1];
                 var correction2 = -(s * _cloth.Mass) * dt * gradC[2];
 
-                _cloth.Delta[_triangle.A].Vec += correction0;
-                _cloth.Delta[_triangle.A].Count++;
-                _cloth.Delta[_triangle.B].Vec += correction1;
-                _cloth.Delta[_triangle.B].Count++;
-                _cloth.Delta[_triangle.C].Vec += correction2;
-                _cloth.Delta[_triangle.C].Count++;
+                _cloth.Predicts[_triangle.A] += correction0;
+                _cloth.Predicts[_triangle.B] += correction1;
+                _cloth.Predicts[_triangle.C] += correction2;
             }
         }
     }

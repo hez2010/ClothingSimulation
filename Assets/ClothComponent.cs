@@ -9,7 +9,7 @@ namespace Assets
     class ClothComponent
     {
         public readonly Vector3[] Positions;
-        public readonly Vector3[] NewPositions;
+        public readonly Vector3[] Predicts;
         public readonly Vector3[] Velocities;
         public readonly Vector3[] NoDampingVelocities;
         public readonly List<ConstraintBase> Constraints;
@@ -17,16 +17,14 @@ namespace Assets
         public float Mass;
         public readonly int[] Triangles;
         public readonly int[][] AdjointTriangles;
-        public (Vector3 Vec, int Count)[] Delta { get; set; }
 
         public ClothComponent(float damping, float mass, Vector3[] vertices, int[] triangles)
         {
             Positions = new Vector3[vertices.Length];
-            NewPositions = new Vector3[vertices.Length];
+            Predicts = new Vector3[vertices.Length];
             Velocities = new Vector3[vertices.Length];
             NoDampingVelocities = new Vector3[vertices.Length];
             Constraints = new List<ConstraintBase>();
-            Delta = new (Vector3 Vec, int Count)[vertices.Length];
             Damping = damping;
             Mass = mass;
             Triangles = triangles;
@@ -52,7 +50,7 @@ namespace Assets
 
             for (var i = 0; i < vertices.Length; i++)
             {
-                NewPositions[i] = Positions[i] = vertices[i];
+                Predicts[i] = Positions[i] = vertices[i];
             }
         }
 
@@ -77,29 +75,21 @@ namespace Assets
             }
         }
 
-        //public void AddFEMTriangleConstraints()
-        //{
-        //    var count = Triangles.Length / 3;
+        public void AddFEMTriangleConstraints()
+        {
+            var count = Triangles.Length / 3;
 
-        //    for (var i = 0; i < count; i++)
-        //    {
-        //        Constraints.Add(new FEMTriangleConstraint(this, 1.0f, 0.3f, (Triangles[i * 3], Triangles[(i * 3) + 1], Triangles[(i * 3) + 2])));
-        //    }
-        //}
+            for (var i = 0; i < count; i++)
+            {
+                Constraints.Add(new FEMTriangleConstraint(this, 1.0f, 0.3f, (Triangles[i * 3], Triangles[(i * 3) + 1], Triangles[(i * 3) + 2])));
+            }
+        }
 
         public void Project(float dt)
         {
-            Array.Clear(Delta, 0, Delta.Length);
             foreach (var constraint in Constraints)
             {
                 constraint.Resolve(dt);
-            }
-            for (var i = 0; i < Delta.Length; i++)
-            {
-                if (Delta[i].Count > 0)
-                {
-                    NewPositions[i] += Delta[i].Vec / Delta[i].Count;
-                }
             }
         }
     }

@@ -6,6 +6,6 @@ namespace Assets.Collisions
     {
         public Bounds Bounds;
         public abstract void UpdateBounds();
-        public abstract bool Hit(int index, Vector3 position, Vector3 velocity, float time, out CollisionResult? result);
+        public abstract bool Hit(Vector3 position, Vector3 velocity, float time, out CollisionResult? result);
     }
 }

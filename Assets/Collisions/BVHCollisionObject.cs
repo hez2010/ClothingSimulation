@@ -45,7 +45,7 @@ namespace Assets.Collisions
             UpdateBounds();
         }
 
-        public override bool Hit(int index, Vector3 position, Vector3 velocity, float time, out CollisionResult? result)
+        public override bool Hit(Vector3 position, Vector3 velocity, float time, out CollisionResult? result)
         {
             if (!HitDetector.HitBox(Bounds.min, Bounds.max, position, velocity, time, out _, out _))
             {
@@ -53,8 +53,8 @@ namespace Assets.Collisions
                 return false;
             }
 
-            var leftHit = Left.Hit(index, position, velocity, time, out var leftResult);
-            var rightHit = Right.Hit(index, position, velocity, time, out var rightResult);
+            var leftHit = Left.Hit(position, velocity, time, out var leftResult);
+            var rightHit = Right.Hit(position, velocity, time, out var rightResult);
 
             if (leftHit && rightHit)
             {
