@@ -3,15 +3,13 @@ using UnityEngine;
 
 namespace Assets.Collisions
 {
-    class BoxCollisionObject : CollisionObject, IHasCollider
+    class BoxCollisionObject : CollisionObject
     {
         private readonly BoxCollider _collider;
         public BoxCollisionObject(BoxCollider collider)
         {
             _collider = collider;
         }
-
-        public Collider Collider => _collider;
 
         public override bool Hit(Vector3 position, Vector3 velocity, float time, out CollisionResult? result)
         {

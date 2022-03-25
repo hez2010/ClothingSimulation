@@ -8,7 +8,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{58A303B4-0D1A-4854-DB9C-41E72AF4CF3E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -67,7 +68,6 @@
     <Compile Include="Assets\Collisions\CapsuleCollisionObject.cs" />
     <Compile Include="Assets\Forces\GlobalForce.cs" />
     <Compile Include="Assets\Contraints\ConstraintBase.cs" />
-    <Compile Include="Assets\Collisions\IHasCollider.cs" />
     <Compile Include="Assets\Utils\Matrix3x3.cs" />
     <Compile Include="Assets\Collisions\CollisionResult.cs" />
     <Compile Include="Assets\Forces\LocalForce.cs" />

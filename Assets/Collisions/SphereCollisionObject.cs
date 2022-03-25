@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Assets.Collisions
 {
-    class SphereCollisionObject : CollisionObject, IHasCollider
+    class SphereCollisionObject : CollisionObject
     {
         private readonly SphereCollider _collider;
         public SphereCollisionObject(SphereCollider collider)
@@ -11,8 +11,6 @@ namespace Assets.Collisions
             _collider = collider;
             UpdateBounds();
         }
-
-        public Collider Collider => _collider;
 
         public override bool Hit(Vector3 position, Vector3 velocity, float time, out CollisionResult? result)
         {

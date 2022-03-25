@@ -84,13 +84,5 @@ namespace Assets
                 Constraints.Add(new FEMTriangleConstraint(this, 1.0f, 0.3f, (Triangles[i * 3], Triangles[(i * 3) + 1], Triangles[(i * 3) + 2])));
             }
         }
-
-        public void Project(float dt)
-        {
-            foreach (var constraint in Constraints)
-            {
-                constraint.Resolve(dt);
-            }
-        }
     }
 }

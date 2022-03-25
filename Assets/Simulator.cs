@@ -28,20 +28,6 @@ namespace Assets
             Array.Clear(Cloth.NoDampingVelocities, 0, Cloth.NoDampingVelocities.Length);
         }
 
-        class CollisionTaskState
-        {
-            public readonly ChannelReader<CollisionResult> Channel;
-            public readonly TaskCompletionSource<bool> CompletionSource;
-            public readonly Dictionary<int, CollisionResult> CollidedTriangles;
-
-            public CollisionTaskState(ChannelReader<CollisionResult> channel, TaskCompletionSource<bool> completionSource, Dictionary<int, CollisionResult> collidedTriangles)
-            {
-                Channel = channel;
-                CompletionSource = completionSource;
-                CollidedTriangles = collidedTriangles;
-            }
-        }
-
         private void DampingVelocities(float dt)
         {
             for (var i = 0; i < Cloth.Positions.Length; i++)
@@ -68,7 +54,10 @@ namespace Assets
         {
             for (var i = 0; i < _simulationIterNum; i++)
             {
-                Cloth.Project(1.0f / _simulationIterNum);
+                foreach (var constraint in Cloth.Constraints)
+                {
+                    constraint.Resolve(1.0f / _simulationIterNum);
+                }
             }
         }
 

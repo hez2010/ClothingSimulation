@@ -9,7 +9,6 @@ public class Cloth : MonoBehaviour
 {
     private MeshFilter _meshFilter;
     private Simulator _simulator;
-    private readonly List<CollisionObject> _collisionObjects = new();
 
     private const int _simulationIterNum = 5;
     private const int _collisionIterNum = 5;
@@ -21,28 +20,40 @@ public class Cloth : MonoBehaviour
         var gen = new TestMeshGenerator();
         var mesh = gen.Generate(40, 20, new(-10, 10, -10));
         _meshFilter.mesh = mesh;
-        var cloth = new ClothComponent(1f, 0.25f, mesh.vertices, mesh.triangles);
-        cloth.AddDistanceConstraints();
         //cloth.Constraints.Add(new FixedPointConstraint(cloth, mesh.triangles[0], mesh.vertices[mesh.triangles[0]]));
         //cloth.AddFEMTriangleConstraints();
 
+        _simulator = new(CreateClothComponent(mesh), _simulationIterNum, _collisionIterNum, GetCollisionObjects(), transform);
+        _simulator.Forces.Add(new GravityForce());
+    }
+
+    private ClothComponent CreateClothComponent(Mesh mesh)
+    {
+        var cloth = new ClothComponent(1f, 0.25f, mesh.vertices, mesh.triangles);
+        cloth.AddDistanceConstraints();
+        return cloth;
+    }
+
+    private CollisionObject[] GetCollisionObjects()
+    {
+        var collisionObjects = new List<CollisionObject>();
+
         foreach (var c in FindObjectsOfType<SphereCollider>(false))
         {
-            _collisionObjects.Add(new SphereCollisionObject(c));
+            collisionObjects.Add(new SphereCollisionObject(c));
         }
 
         foreach (var c in FindObjectsOfType<BoxCollider>(false))
         {
-            _collisionObjects.Add(new BoxCollisionObject(c));
+            collisionObjects.Add(new BoxCollisionObject(c));
         }
 
         foreach (var c in FindObjectsOfType<CapsuleCollider>(false))
         {
-            _collisionObjects.Add(new CapsuleCollisionObject(c));
+            collisionObjects.Add(new CapsuleCollisionObject(c));
         }
 
-        _simulator = new(cloth, _simulationIterNum, _collisionIterNum, _collisionObjects.ToArray(), transform);
-        _simulator.Forces.Add(new GravityForce());
+        return collisionObjects.ToArray();
     }
 
     void Update()
