@@ -102,9 +102,9 @@ namespace Assets.Contraints
             }
             gradC[2] = -gradC[0] - gradC[1];
 
-            var sumNormGradC = _cloth.Mass * gradC[0].Norm() * gradC[0].Norm();
-            sumNormGradC += _cloth.Mass * gradC[1].Norm() * gradC[1].Norm();
-            sumNormGradC += _cloth.Mass * gradC[2].Norm() * gradC[2].Norm();
+            var sumNormGradC = _cloth.Masses[0] * gradC[0].Norm() * gradC[0].Norm();
+            sumNormGradC += _cloth.Masses[1] * gradC[1].Norm() * gradC[1].Norm();
+            sumNormGradC += _cloth.Masses[2] * gradC[2].Norm() * gradC[2].Norm();
 
             if (Mathf.Abs(sumNormGradC) > 1e-6f)
             {
@@ -112,9 +112,9 @@ namespace Assets.Contraints
                 var s = energy / sumNormGradC;
 
                 // update positions
-                var correction0 = -(s * _cloth.Mass) * dt * gradC[0];
-                var correction1 = -(s * _cloth.Mass) * dt * gradC[1];
-                var correction2 = -(s * _cloth.Mass) * dt * gradC[2];
+                var correction0 = -(s * _cloth.Masses[0]) * dt * gradC[0];
+                var correction1 = -(s * _cloth.Masses[1]) * dt * gradC[1];
+                var correction2 = -(s * _cloth.Masses[2]) * dt * gradC[2];
 
                 _cloth.Predicts[_triangle.A] += correction0;
                 _cloth.Predicts[_triangle.B] += correction1;

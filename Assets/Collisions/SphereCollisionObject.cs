@@ -6,11 +6,16 @@ namespace Assets.Collisions
     class SphereCollisionObject : CollisionObject
     {
         private readonly SphereCollider _collider;
+        private Vector3 _velocity;
+        private Vector3 _lastPosition;
+
         public SphereCollisionObject(SphereCollider collider)
         {
             _collider = collider;
-            UpdateBounds();
+            UpdateBounds(0);
         }
+
+        public override Vector3 Velocity => _velocity;
 
         public override bool Hit(Vector3 position, Vector3 velocity, float time, out CollisionResult? result)
         {
@@ -29,9 +34,19 @@ namespace Assets.Collisions
             return false;
         }
 
-        public override void UpdateBounds()
+        public override void UpdateBounds(float dt)
         {
+            if (dt == 0)
+            {
+                _velocity = default;
+            }
+            else
+            {
+                _velocity = _collider.bounds.center - _lastPosition;
+            }
+
             Bounds = new Bounds(_collider.bounds.center, _collider.bounds.size);
+            _lastPosition = _collider.bounds.center;
         }
     }
 }

@@ -42,8 +42,10 @@ namespace Assets.Collisions
                     break;
             }
 
-            UpdateBounds();
+            UpdateBounds(0);
         }
+
+        public override Vector3 Velocity => throw new NotSupportedException();
 
         public override bool Hit(Vector3 position, Vector3 velocity, float time, out CollisionResult? result)
         {
@@ -76,10 +78,10 @@ namespace Assets.Collisions
             return false;
         }
 
-        public override void UpdateBounds()
+        public override void UpdateBounds(float dt)
         {
-            Left.UpdateBounds();
-            Right.UpdateBounds();
+            Left.UpdateBounds(dt);
+            Right.UpdateBounds(dt);
 
             var leftBounds = Left.Bounds;
             var rightBounds = Right.Bounds;

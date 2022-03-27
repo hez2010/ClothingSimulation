@@ -1,4 +1,5 @@
 ﻿using Assets.Contraints;
+using Assets.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,50 +12,69 @@ namespace Assets
         public readonly Vector3[] Positions;
         public readonly Vector3[] Predicts;
         public readonly Vector3[] Velocities;
+        public readonly bool[] UpdatedVelocities;
         public readonly Vector3[] NoDampingVelocities;
+        public readonly float[] Masses;
         public readonly List<ConstraintBase> Constraints;
-        public float Damping;
-        public float Mass;
+        public readonly float Damping;
         public readonly int[] Triangles;
-        public readonly int[][] AdjointTriangles;
 
-        public ClothComponent(float damping, float mass, Vector3[] vertices, int[] triangles)
+        public ClothComponent(float damping, Vector3[] vertices, int[] triangles)
         {
             Positions = new Vector3[vertices.Length];
             Predicts = new Vector3[vertices.Length];
             Velocities = new Vector3[vertices.Length];
             NoDampingVelocities = new Vector3[vertices.Length];
+            UpdatedVelocities = new bool[vertices.Length];
             Constraints = new List<ConstraintBase>();
             Damping = damping;
-            Mass = mass;
             Triangles = triangles;
-            AdjointTriangles = new int[triangles.Length][];
+            Masses = new float[vertices.Length];
 
-            var count = triangles.Length / 3;
-            for (var i = 0; i < vertices.Length; i++)
-            {
-                var adjointTriangles = new HashSet<int>();
-                for (var j = 0; j < count; j++)
-                {
-                    if (i == triangles[j * 3] ||
-                        i == triangles[(j * 3) + 1] ||
-                        i == triangles[(j * 3) + 2])
-                    {
-                        adjointTriangles.Add(triangles[j * 3]);
-                        adjointTriangles.Add(triangles[(j * 3) + 1]);
-                        adjointTriangles.Add(triangles[(j * 3) + 2]);
-                    }
-                }
-                AdjointTriangles[i] = adjointTriangles.ToArray();
-            }
+            //var count = triangles.Length / 3;
+            //for (var i = 0; i < vertices.Length; i++)
+            //{
+            //    var adjointTriangles = new HashSet<int>();
+            //    for (var j = 0; j < count; j++)
+            //    {
+            //        if (i == triangles[j * 3] ||
+            //            i == triangles[(j * 3) + 1] ||
+            //            i == triangles[(j * 3) + 2])
+            //        {
+            //            adjointTriangles.Add(triangles[j * 3]);
+            //            adjointTriangles.Add(triangles[(j * 3) + 1]);
+            //            adjointTriangles.Add(triangles[(j * 3) + 2]);
+            //        }
+            //    }
+            //    AdjointTriangles[i] = adjointTriangles.ToArray();
+            //}
 
             for (var i = 0; i < vertices.Length; i++)
             {
                 Predicts[i] = Positions[i] = vertices[i];
             }
+
+            ComputeMasses();
+            AddDistanceConstraints();
         }
 
-        public void AddDistanceConstraints()
+        private void ComputeMasses()
+        {
+            var count = Triangles.Length / 3;
+            for (var i = 0; i < count; i++)
+            {
+                var p1 = Positions[Triangles[i * 3]];
+                var p2 = Positions[Triangles[(i * 3) + 1]];
+                var p3 = Positions[Triangles[(i * 3) + 2]];
+                var area = (p2 - p1).Cross(p3 - p1).magnitude / 2;
+                var m = area / 3;
+                Masses[Triangles[i * 3]] = m;
+                Masses[Triangles[(i * 3) + 1]] = m;
+                Masses[Triangles[(i * 3) + 2]] = m;
+            }
+        }
+
+        private void AddDistanceConstraints()
         {
             var count = Triangles.Length / 3;
             var edges = new HashSet<(int A, int B)>();
@@ -75,14 +95,14 @@ namespace Assets
             }
         }
 
-        public void AddFEMTriangleConstraints()
-        {
-            var count = Triangles.Length / 3;
+        //public void AddFEMTriangleConstraints()
+        //{
+        //    var count = Triangles.Length / 3;
 
-            for (var i = 0; i < count; i++)
-            {
-                Constraints.Add(new FEMTriangleConstraint(this, 1.0f, 0.3f, (Triangles[i * 3], Triangles[(i * 3) + 1], Triangles[(i * 3) + 2])));
-            }
-        }
+        //    for (var i = 0; i < count; i++)
+        //    {
+        //        Constraints.Add(new FEMTriangleConstraint(this, 1.0f, 0.3f, (Triangles[i * 3], Triangles[(i * 3) + 1], Triangles[(i * 3) + 2])));
+        //    }
+        //}
     }
 }

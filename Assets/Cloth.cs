@@ -11,7 +11,6 @@ public class Cloth : MonoBehaviour
     private Simulator _simulator;
 
     private const int _simulationIterNum = 5;
-    private const int _collisionIterNum = 5;
 
     void Start()
     {
@@ -20,17 +19,16 @@ public class Cloth : MonoBehaviour
         var gen = new TestMeshGenerator();
         var mesh = gen.Generate(40, 20, new(-10, 10, -10));
         _meshFilter.mesh = mesh;
-        //cloth.Constraints.Add(new FixedPointConstraint(cloth, mesh.triangles[0], mesh.vertices[mesh.triangles[0]]));
         //cloth.AddFEMTriangleConstraints();
 
-        _simulator = new(CreateClothComponent(mesh), _simulationIterNum, _collisionIterNum, GetCollisionObjects(), transform);
+        _simulator = new(CreateClothComponent(mesh), _simulationIterNum, GetCollisionObjects(), transform);
         _simulator.Forces.Add(new GravityForce());
+        //_simulator.Cloth.Constraints.Add(new FixedPointConstraint(_simulator.Cloth, mesh.triangles[200], mesh.vertices[mesh.triangles[200]]));
     }
 
     private ClothComponent CreateClothComponent(Mesh mesh)
     {
-        var cloth = new ClothComponent(1f, 0.25f, mesh.vertices, mesh.triangles);
-        cloth.AddDistanceConstraints();
+        var cloth = new ClothComponent(1f, mesh.vertices, mesh.triangles);
         return cloth;
     }
 
