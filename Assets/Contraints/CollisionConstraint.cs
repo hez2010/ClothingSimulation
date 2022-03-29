@@ -26,7 +26,7 @@ namespace Assets.Contraints
         public override void Resolve(float dt)
         {
             var v = _velocity - _cloth.Velocities[_index];
-            _cloth.Predicts[_index] = _cloth.Positions[_index];
+            _cloth.Predicts[_index] = _position;
             _cloth.Velocities[_index] = v.Dot(_normal) * _normal;
             _cloth.UpdatedVelocities[_index] = true; 
         }

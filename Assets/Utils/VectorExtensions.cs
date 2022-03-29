@@ -22,5 +22,10 @@ namespace Assets.Utils
         {
             return (left.x * right.x) + (left.y * right.y) + (left.z * right.z);
         }
+
+        public static Vector3 GetDirection(this Vector4 vec)
+        {
+            return new Vector3(vec.x, vec.y, vec.z);
+        }
     }
 }

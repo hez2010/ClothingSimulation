@@ -21,23 +21,16 @@ namespace Assets.Collisions
             var localPosition = _collider.transform.InverseTransformPoint(position);
             var localVelocity = _collider.transform.InverseTransformVector(velocity);
 
-            if (HitDetector.HitBox(
-                _collider.transform.InverseTransformPoint(_collider.bounds.min), 
-                _collider.transform.InverseTransformPoint(_collider.bounds.max),
+            if (HitDetector.HitAABB(
+                _collider.center - _collider.size / 2,
+                _collider.center + _collider.size / 2,
                 localPosition,
                 localVelocity,
                 time,
-                out var axis,
+                out var normal,
                 out var reachTime))
             {
-                result = new CollisionResult(this, position + (reachTime * velocity), axis switch
-                {
-                    0 => new Vector3(1, 0, 0),
-                    1 => new Vector3(0, 1, 0),
-                    2 => new Vector3(0, 0, 1),
-                    _ => default
-                }, reachTime);
-
+                result = new CollisionResult(this, position + (reachTime * velocity), normal, reachTime);
                 return true;
             }
 

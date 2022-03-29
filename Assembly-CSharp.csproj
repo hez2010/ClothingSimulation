@@ -8,8 +8,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <ProjectGuid>{58A303B4-0D1A-4854-DB9C-41E72AF4CF3E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -59,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Assets\Forces\GravityForce.cs" />
     <Compile Include="Assets\Cloth.cs" />
+    <Compile Include="Assets\Contraints\CollisionConstraint.cs" />
     <Compile Include="Assets\ClothComponent.cs" />
     <Compile Include="Assets\Collisions\SphereCollisionObject.cs" />
     <Compile Include="Assets\Contraints\BendingConstraint.cs" />
@@ -81,7 +81,6 @@
     <Compile Include="Assets\Utils\Matrix2x2.cs" />
     <Compile Include="Assets\Contraints\DistanceConstraint.cs" />
     <Compile Include="Assets\Contraints\FEMTriangleConstraint.cs" />
-    <Compile Include="Assets\Contraints\CollisionConstraint.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Library\System.Threading.Channels.dll" />

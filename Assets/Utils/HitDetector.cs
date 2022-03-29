@@ -10,8 +10,9 @@ namespace Assets.Utils
             reachTime = 0f;
 
             var dis = position - center;
-            var a = velocity.Dot(velocity);
-            var b = dis.Dot(velocity);
+            var dir = velocity.normalized;
+            var a = dir.Dot(dir);
+            var b = dis.Dot(dir);
             var c = dis.Dot(dis) - (radius * radius);
             var discriminant = (b * b) - (a * c);
             if (discriminant >= 0)
@@ -19,6 +20,9 @@ namespace Assets.Utils
                 var time1 = (-b - Mathf.Sqrt(discriminant)) / a;
                 var time2 = (-b + Mathf.Sqrt(discriminant)) / a;
                 var hit = false;
+
+                time1 = (dir * time1).magnitude / velocity.magnitude;
+                time2 = (dir * time2).magnitude / velocity.magnitude;
 
                 if (time1 < time && time1 >= 0)
                 {
@@ -30,18 +34,18 @@ namespace Assets.Utils
                     reachTime = time2;
                     hit = true;
                 }
-                else if (time1 < 0 && time2 > 0)
-                {
-                    // inside
-                    reachTime = time1;
-                    hit = true;
-                }
-                else if (time2 < 0 && time1 > 0)
-                {
-                    // inside
-                    reachTime = time2;
-                    hit = true;
-                }
+                //else if (time1 < 0 && time2 > 0)
+                //{
+                //    // inside
+                //    reachTime = time1;
+                //    hit = true;
+                //}
+                //else if (time2 < 0 && time1 > 0)
+                //{
+                //    // inside
+                //    reachTime = time2;
+                //    hit = true;
+                //}
 
                 return hit;
             }
@@ -49,11 +53,53 @@ namespace Assets.Utils
             return false;
         }
 
-        public static bool HitBox(Vector3 minPoint, Vector3 maxPoint, Vector3 position, Vector3 velocity, float time, out int axis, out float reachTime)
+        public static bool HitBox(Vector3 center, Vector4[] size, Vector3 position, Vector3 velocity, float time, out float reachTime)
         {
-            var Tmin = float.MaxValue;
-            axis = 0;
-            reachTime = 0f;
+            var t0 = float.NegativeInfinity;
+            var t1 = float.PositiveInfinity;
+            var d = velocity.normalized;
+
+            for (var i = 0; i < 3; i++)
+            {
+                var u = size[i].GetDirection();
+                var r = u.Dot(d);
+                var s = u.Dot(center - position);
+                if (Mathf.Abs(r) < float.Epsilon)
+                {
+                    if (-s - (size[i].w / 2) > 0 || -s + (size[i].w / 2) < 0)
+                    {
+                        reachTime = default;
+                        return false;
+                    }
+                }
+                else
+                {
+                    var t0Tmp = (s - (size[i].w / 2)) / r;
+                    var t1Tmp = (s + (size[i].w / 2)) / r;
+                    if (t0Tmp > t1Tmp)
+                    {
+                        (t0Tmp, t1Tmp) = (t1Tmp, t0Tmp);
+                    }
+                    t0 = Mathf.Max(t0Tmp, t0);
+                    t1 = Mathf.Min(t1Tmp, t1);
+
+                    if (t0 > t1 || t1 < 0)
+                    {
+                        reachTime = default;
+                        return false;
+                    }
+                }
+            }
+
+            reachTime = t0 > 0 ? t0 : t1;
+            return reachTime <= time;
+        }
+
+        public static bool HitAABB(Vector3 minPoint, Vector3 maxPoint, Vector3 position, Vector3 velocity, float time, out Vector3 normal, out float reachTime)
+        {
+            reachTime = float.MaxValue;
+            normal = default;
+
             for (var a = 0; a < 3; a++)
             {
                 var invV = 1.0f / velocity[a];
@@ -69,13 +115,15 @@ namespace Assets.Utils
                 var tmax = Mathf.Min(time, t1);
                 if (tmax <= tmin)
                 {
+                    reachTime = default;
                     return false;
                 }
 
-                if (Tmin > tmin)
+                if (reachTime > tmin)
                 {
-                    Tmin = reachTime = tmin;
-                    axis = a;
+                    reachTime = tmin;
+                    normal = new Vector3();
+                    normal[a] = 1;
                 }
             }
 
@@ -86,13 +134,15 @@ namespace Assets.Utils
         {
             var ab = pB - pA;
             var ao = position - pA;
-            var ab_d = ab.Dot(velocity);
+            var d = velocity.normalized;
+            var vScale = velocity.magnitude / d.magnitude;
+            var ab_d = ab.Dot(d);
             var ab_ao = ab.Dot(ao);
             var ab_ab = ab.Dot(ab);
             var m = ab_d / ab_ab;
             var n = ab_ao / ab_ab;
 
-            var q = velocity - (ab * m);
+            var q = d - (ab * m);
             var r = ao - (ab * n);
 
             var a = q.Dot(q);
@@ -111,15 +161,15 @@ namespace Assets.Utils
 
                 if (atime < btime)
                 {
-                    var p = position + (velocity * atime);
+                    var p = position + (d * atime);
                     normal = (p - pA).normalized;
-                    reachTime = atime;
+                    reachTime = atime / vScale;
                 }
                 else
                 {
-                    var p = position + (velocity * btime);
+                    var p = position + (d * btime);
                     normal = (p - pB).normalized;
-                    reachTime = btime;
+                    reachTime = btime / vScale;
                 }
 
                 return true;
@@ -178,10 +228,11 @@ namespace Assets.Utils
             else
             {
                 // On the cylinder
-                var p = position + (velocity * t);
+                var p = position + (d * t);
                 var k1 = pA + (ab * tK);
-                reachTime = t;
+                reachTime = t / vScale;
                 normal = (p - k1).normalized;
+                return false; // fix me: disabled for now
             }
 
             return true;

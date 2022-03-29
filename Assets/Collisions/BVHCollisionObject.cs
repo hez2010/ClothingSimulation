@@ -49,7 +49,7 @@ namespace Assets.Collisions
 
         public override bool Hit(Vector3 position, Vector3 velocity, float time, out CollisionResult? result)
         {
-            if (!HitDetector.HitBox(Bounds.min, Bounds.max, position, velocity, time, out _, out _))
+            if (!HitDetector.HitAABB(Bounds.min, Bounds.max, position, velocity, time, out _, out _))
             {
                 result = null;
                 return false;
