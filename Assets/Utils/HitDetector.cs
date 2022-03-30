@@ -97,8 +97,10 @@ namespace Assets.Utils
 
         public static bool HitAABB(Vector3 minPoint, Vector3 maxPoint, Vector3 position, Vector3 velocity, float time, out Vector3 normal, out float reachTime)
         {
-            reachTime = float.MaxValue;
             normal = default;
+            reachTime = default;
+            var tmin = float.NegativeInfinity;
+            var tmax = time;
 
             for (var a = 0; a < 3; a++)
             {
@@ -111,19 +113,17 @@ namespace Assets.Utils
                     (t0, t1) = (t1, t0);
                 }
 
-                var tmin = Mathf.Max(0, t0);
-                var tmax = Mathf.Min(time, t1);
+                if (tmin < t0)
+                {
+                    tmin = t0;
+                    reachTime = tmin;
+                }
+
+                tmax = Mathf.Min(t1, tmax);
                 if (tmax <= tmin)
                 {
                     reachTime = default;
                     return false;
-                }
-
-                if (reachTime > tmin)
-                {
-                    reachTime = tmin;
-                    normal = new Vector3();
-                    normal[a] = 1;
                 }
             }
 

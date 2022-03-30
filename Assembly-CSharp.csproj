@@ -76,7 +76,7 @@
     <Compile Include="Assets\Collisions\CollisionObject.cs" />
     <Compile Include="Assets\Utils\VectorExtensions.cs" />
     <Compile Include="Assets\Utils\HitDetector.cs" />
-    <Compile Include="Assets\TestMeshGenerator.cs" />
+    <Compile Include="Assets\TestClothMeshGenerator.cs" />
     <Compile Include="Assets\Contraints\FixedPointConstraint.cs" />
     <Compile Include="Assets\Utils\Matrix2x2.cs" />
     <Compile Include="Assets\Contraints\DistanceConstraint.cs" />

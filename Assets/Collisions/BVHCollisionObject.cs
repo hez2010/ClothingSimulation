@@ -80,6 +80,7 @@ namespace Assets.Collisions
 
         public override void UpdateBounds(float dt)
         {
+            if (Left is null) return;
             Left.UpdateBounds(dt);
             Right.UpdateBounds(dt);
 

@@ -112,9 +112,9 @@ namespace Assets.Contraints
                 var s = energy / sumNormGradC;
 
                 // update positions
-                var correction0 = -(s * _cloth.Masses[0]) * dt * gradC[0];
-                var correction1 = -(s * _cloth.Masses[1]) * dt * gradC[1];
-                var correction2 = -(s * _cloth.Masses[2]) * dt * gradC[2];
+                var correction0 = -(s * 1 / _cloth.Masses[0]) * dt * gradC[0];
+                var correction1 = -(s * 1 / _cloth.Masses[1]) * dt * gradC[1];
+                var correction2 = -(s * 1 / _cloth.Masses[2]) * dt * gradC[2];
 
                 _cloth.Predicts[_triangle.A] += correction0;
                 _cloth.Predicts[_triangle.B] += correction1;

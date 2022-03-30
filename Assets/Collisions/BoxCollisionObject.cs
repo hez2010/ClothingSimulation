@@ -20,19 +20,24 @@ namespace Assets.Collisions
         {
             var localPosition = _collider.transform.InverseTransformPoint(position);
             var localVelocity = _collider.transform.InverseTransformVector(velocity);
-
-            if (HitDetector.HitAABB(
-                _collider.center - _collider.size / 2,
-                _collider.center + _collider.size / 2,
-                localPosition,
-                localVelocity,
-                time,
-                out var normal,
-                out var reachTime))
+            var ray = new Ray(position, velocity.normalized);
+            if (_collider.Raycast(ray, out var hitInfo, time * velocity.magnitude))
             {
-                result = new CollisionResult(this, position + (reachTime * velocity), normal, reachTime);
+                result = new CollisionResult(this, hitInfo.point, hitInfo.normal, (hitInfo.point - position).magnitude / velocity.magnitude);
                 return true;
             }
+            //if (HitDetector.HitAABB(
+            //    _collider.center - (_collider.size / 2),
+            //    _collider.center + (_collider.size / 2),
+            //    localPosition,
+            //    localVelocity,
+            //    time,
+            //    out var normal,
+            //    out var reachTime))
+            //{
+            //    result = new CollisionResult(this, position + (reachTime * velocity), normal, reachTime);
+            //    return true;
+            //}
 
             result = null;
             return false;

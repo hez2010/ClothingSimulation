@@ -10,20 +10,24 @@ public class Cloth : MonoBehaviour
     private MeshFilter _meshFilter;
     private Simulator _simulator;
 
-    private const int _simulationIterNum = 5;
+    private const int _simulationIterNum = 3;
 
     void Start()
     {
         Application.targetFrameRate = 60;
         _meshFilter = GetComponent<MeshFilter>();
-        var gen = new TestMeshGenerator();
-        var mesh = gen.Generate(40, 20, new(-10, 10, -10));
-        _meshFilter.mesh = mesh;
-        //cloth.AddFEMTriangleConstraints();
+        //var gen = new TestClothMeshGenerator();
+        //var mesh = gen.Generate(40, 20, 0.5f, new(-10, 10, -10));
+        //_meshFilter.mesh = mesh;
 
-        _simulator = new(CreateClothComponent(mesh), _simulationIterNum, GetCollisionObjects(), transform);
+        _simulator = new(CreateClothComponent(_meshFilter.mesh), _simulationIterNum, GetCollisionObjects(), transform);
         _simulator.Forces.Add(new GravityForce());
-        //_simulator.Cloth.Constraints.Add(new FixedPointConstraint(_simulator.Cloth, mesh.triangles[200], mesh.vertices[mesh.triangles[200]]));
+
+        // _simulator.Cloth.AddFEMTriangleConstraints();
+
+        const int fixedIndex = 0;
+        //_simulator.Cloth.Constraints.Add(new FixedPointConstraint(_simulator.Cloth, mesh.triangles[fixedIndex], mesh.vertices[mesh.triangles[fixedIndex]]));
+
     }
 
     private ClothComponent CreateClothComponent(Mesh mesh)
@@ -56,14 +60,14 @@ public class Cloth : MonoBehaviour
 
     void Update()
     {
-        foreach (var c in _simulator.Cloth.Constraints)
-        {
-            if (c is FixedPointConstraint fc)
-            {
-                fc.Position.z += Mathf.Sin(Time.time) / 4;
-                fc.Position.x -= Mathf.Sin(Time.time) / 4;
-            }
-        }
+        //foreach (var c in _simulator.Cloth.Constraints)
+        //{
+        //    if (c is FixedPointConstraint fc)
+        //    {
+        //        fc.Position.z += Mathf.Sin(Time.time) / 8;
+        //        fc.Position.x -= Mathf.Sin(Time.time) / 8;
+        //    }
+        //}
 
         for (var i = 0; i < _simulationIterNum; i++)
         {
