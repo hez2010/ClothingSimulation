@@ -1,4 +1,6 @@
-﻿namespace Assets.Contraints
+﻿using UnityEngine;
+
+namespace Assets.Contraints
 {
     class DistanceConstraint : ConstraintBase
     {

@@ -55,6 +55,7 @@ namespace Assets
             }
 
             ComputeMasses();
+            //AddBendingConstraints();
             AddDistanceConstraints();
         }
 
@@ -94,6 +95,36 @@ namespace Assets
                 Constraints.Add(new DistanceConstraint(this, 1.0f, a, b));
             }
         }
+
+        //private void AddBendingConstraints()
+        //{
+        //    var count = Triangles.Length / 3;
+        //    var dict = new Dictionary<(int A, int B), int>();
+        //    var edges = new HashSet<(int A, int B)>();
+
+        //    for (var i = 0; i < count; i++)
+        //    {
+        //        var t1 = Triangles[i * 3];
+        //        var t2 = Triangles[(i * 3) + 1];
+        //        var t3 = Triangles[(i * 3) + 2];
+        //        dict[(t1, t2)] = t3;
+        //        dict[(t1, t3)] = t2;
+        //        dict[(t2, t3)] = t1;
+        //        edges.Add(t1 > t2 ? (t2, t1) : (t1, t2));
+        //        edges.Add(t2 > t3 ? (t3, t2) : (t2, t3));
+        //        edges.Add(t1 > t3 ? (t3, t1) : (t1, t3));
+        //    }
+
+        //    foreach (var (a, b) in edges)
+        //    {
+        //        if (dict.ContainsKey((a, b)) && dict.ContainsKey((b, a)))
+        //        {
+        //            var c = dict[(a, b)];
+        //            var d = dict[(b, a)];
+        //            Constraints.Add(new BendingConstraint(this, 1.0f, a, b, c, d));
+        //        }
+        //    }
+        //}
 
         //public void AddFEMTriangleConstraints()
         //{

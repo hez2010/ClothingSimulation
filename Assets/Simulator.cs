@@ -57,7 +57,7 @@ namespace Assets
             {
                 foreach (var constraint in Cloth.Constraints)
                 {
-                    constraint.Resolve(1.0f / _simulationIterNum);
+                    constraint.Resolve(1.0f /*/ _simulationIterNum*/);
                 }
             }
             Cloth.Constraints.RemoveAll(c => c is CollisionConstraint);
