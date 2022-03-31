@@ -32,5 +32,10 @@ namespace Assets.Utils
         {
             return new Vector3(vec.x, vec.y, vec.z);
         }
+
+        public static Vector4 WithLength(this Vector3 vec, float length)
+        {
+            return new Vector4(vec.x, vec.y, vec.z, length);
+        }
     }
 }

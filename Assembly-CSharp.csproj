@@ -81,6 +81,7 @@
     <Compile Include="Assets\Utils\Matrix2x2.cs" />
     <Compile Include="Assets\Contraints\DistanceConstraint.cs" />
     <Compile Include="Assets\Contraints\FEMTriangleConstraint.cs" />
+    <Compile Include="Assets\Utils\FrustumShape.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Library\System.Threading.Channels.dll" />

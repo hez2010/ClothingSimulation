@@ -53,6 +53,30 @@ namespace Assets.Utils
             return false;
         }
 
+        public static bool InsideSphere(Vector3 center, float radius, Vector3 position)
+        {
+            var d = center - position;
+            return d.Dot(d) <= radius * radius;
+        }
+
+        public static bool GetSphereClosestSurfacePoint(Vector3 center, float radius, Vector3 position, out Vector3 normal, out Vector3 closestPosition)
+        {
+            var c2p = position - center;
+            float d2 = c2p.Dot(c2p);
+            float r2 = radius * radius;
+            if (d2 < r2)
+            {
+                normal = c2p.normalized;
+                closestPosition = center + normal * radius;
+                return true;
+            }
+            else
+            {
+                normal = closestPosition = default;
+                return false;
+            }
+        }
+
         public static bool HitBox(Vector3 center, Vector4[] size, Vector3 position, Vector3 velocity, float time, out float reachTime)
         {
             var t0 = float.NegativeInfinity;
@@ -128,6 +152,71 @@ namespace Assets.Utils
             }
 
             return true;
+        }
+
+        public static bool InsideAABB(Vector3 min, Vector4 ax, Vector4 ay, Vector4 az, Vector3 position)
+        {
+            var o = min;
+            position = position - o;
+            var projOnAxis = new Vector3(
+                position.Dot(ax.GetDirection()),
+                position.Dot(ay.GetDirection()),
+                position.Dot(az.GetDirection())
+            );
+            var axisLength = new Vector3(ax.w, ay.w, az.w);
+            return projOnAxis is { x: > 0, y: > 0, z: > 0 } && projOnAxis.x < axisLength.x && projOnAxis.y < axisLength.y && projOnAxis.z < axisLength.z;
+        }
+
+        static Vector3 select(Vector3 a, Vector3 b, Vector3 c) { return new Vector3(c.x > 0 ? b.x : a.x, c.y > 0 ? b.y : a.y, c.z > 0 ? b.z : a.z); }
+        static Vector3 step(Vector3 y, Vector3 x) { return select(new Vector3(0, 0, 0), new Vector3(1, 1, 1), new Vector3(x.x > y.x ? 1 : 0, x.y > y.y ? 1 : 0, x.z > y.z ? 1 : 0)); }
+
+        public static bool GetAABBClosestSurfacePoint(Vector3 min, Vector4 ax, Vector4 ay, Vector4 az, Vector3 position, out Vector3 normal, out Vector3 closestPosition)
+        {
+            var o = min;
+            position = position - o;
+            var xyz = new Vector3(
+                position.Dot(ax.GetDirection()),
+                position.Dot(ay.GetDirection()),
+                position.Dot(az.GetDirection())
+            );
+            var projOnAxis = xyz;
+            var axisLength = new Vector3(ax.w, ay.w, az.w);
+            var side = step(axisLength * 0.5f, projOnAxis); // >0.5 => 1 | <0.5 => 0
+            var left = new Vector3(1, 1, 1) - side * 2;
+            var right = projOnAxis - new Vector3(side.x * axisLength.x, side.y * axisLength.y, side.z * axisLength.z);
+            var signedDist = new Vector3(left.x * right.x, left.y * right.y, left.z * right.z);
+            bool inside = signedDist is { x: > 0, y: > 0, z: > 0 };
+            if (inside)
+            {
+                var dst = signedDist.x;
+                var axis = ax;
+                var sideFlag = side.x;
+                var axisIndex = 0;
+                if (signedDist.y < dst)
+                {
+                    dst = signedDist.y;
+                    axisIndex = 1;
+                    sideFlag = side.y;
+                    axis = ay;
+                }
+                if (signedDist.z < dst)
+                {
+                    dst = signedDist.z;
+                    sideFlag = side.z;
+                    axisIndex = 2;
+                    axis = az;
+                }
+
+                normal = sideFlag == 1 ? xyz : -xyz;
+                var offset = (projOnAxis[axisIndex] - sideFlag * axis.w);
+                closestPosition = o + position - xyz * offset;
+                return true;
+            }
+            else
+            {
+                normal = closestPosition = default;
+                return false;
+            }
         }
 
         public static bool HitCapsule(Vector3 pA, Vector3 pB, float radius, Vector3 position, Vector3 velocity, float time, out Vector3 normal, out float reachTime)
@@ -236,6 +325,106 @@ namespace Assets.Utils
             }
 
             return true;
+        }
+
+        public static bool InsideCapsule(Vector3 pA, Vector3 pB, float radius, Vector3 position)
+        {
+            var o = pA;
+            var d = (pB - pA).normalized;
+            var w = (pB - pA).magnitude;
+            position = position - o;
+            var proj = position.Dot(d); // p project on AB
+            if (proj < -radius || proj > w + radius)
+            {
+                return false;
+            }
+            var r2 = radius * radius;
+            if (proj >= 0 && proj <= w)
+            {
+                // on cylinder
+                var dist2 = position.Dot(position) - proj * proj;
+                return dist2 < r2;
+            }
+            if (proj >= -radius && proj < 0)
+            {
+                // on pA
+                return position.Dot(position) < r2;
+            }
+            if (proj <= w + radius)
+            {
+                // on pB
+                var v = position - (d * w);
+                return v.Dot(v) < r2;
+            }
+            return false;
+        }
+
+        public static bool GetCapsuleClosestSurfacePoint(Vector3 pA, Vector3 pB, float radius, Vector3 position, out Vector3 normal, out Vector3 closestPosition)
+        {
+            var o = pA;
+            var d = (pB - pA).normalized;
+            var w = (pB - pA).magnitude;
+            position = position - o;
+            var proj = position.Dot(d); // p -> AB
+            if (proj < -radius || proj > w + radius)
+            {
+                normal = closestPosition = default;
+                return false;
+            }
+            var r2 = radius * radius;
+            if (proj >= 0 && proj <= w)
+            {
+                // cylinder
+                var dist2 = position.Dot(position) - proj * proj;
+                if (dist2 < r2)
+                {
+                    var q = d * proj;
+                    normal = (position - q).normalized;
+                    closestPosition = o + q + normal * radius;
+                    return true;
+                }
+                else
+                {
+                    normal = closestPosition = default;
+                    return false;
+                }
+            }
+            if (proj >= -radius && proj < 0)
+            {
+                // sphere pA
+                var c2p = position;
+                if (c2p.Dot(c2p) < r2)
+                {
+                    normal = c2p.normalized;
+                    closestPosition = o + radius * normal;
+                    return true;
+                }
+                else
+                {
+                    normal = closestPosition = default;
+                    return false;
+                }
+            }
+            if (proj <= w + radius)
+            {
+                // sphere pB
+                var c = (d * w);
+                var c2p = position - c;
+                if (c2p.Dot(c2p) < r2)
+                {
+                    normal = c2p.normalized;
+                    closestPosition = o + c + radius * normal;
+                    return true;
+                }
+                else
+                {
+                    normal = closestPosition = default;
+                    return false;
+                }
+            }
+
+            normal = closestPosition = default;
+            return false;
         }
     }
 }

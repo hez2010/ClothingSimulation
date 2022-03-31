@@ -28,6 +28,19 @@ namespace Assets.Collisions
                 return true;
             }
 
+            var cHeight = _collider.height - (_collider.radius * 2);
+            var pA = _collider.center;
+            var pB = _collider.center;
+            pA[_collider.direction] += cHeight / 2;
+            pB[_collider.direction] -= cHeight / 2;
+
+            if (HitDetector.InsideCapsule(pA, pB, _collider.radius, localPosition) &&
+                HitDetector.GetCapsuleClosestSurfacePoint(pA, pB, _collider.radius, localPosition, out var n, out var p))
+            {
+                result = new CollisionResult(this, _collider.transform.TransformPoint(p), _collider.transform.TransformDirection(n), 0);
+                return true;
+            }
+
             //var cHeight = _collider.height - (_collider.radius * 2);
             //var pA = _collider.center;
             //var pB = _collider.center;

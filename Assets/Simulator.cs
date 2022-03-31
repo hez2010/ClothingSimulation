@@ -93,15 +93,8 @@ namespace Assets
 
             for (var i = 0; i < Cloth.Positions.Length; i++)
             {
-                if (Cloth.UpdatedVelocities[i])
-                {
-                    Cloth.UpdatedVelocities[i] = false;
-                }
-                else
-                {
-                    var dx = Cloth.Predicts[i] - Cloth.Positions[i];
-                    Cloth.Velocities[i] = dx / dt;
-                }
+                var dx = Cloth.Predicts[i] - Cloth.Positions[i];
+                Cloth.Velocities[i] = dx / dt;
                 Cloth.Positions[i] = Cloth.Predicts[i];
             }
         }

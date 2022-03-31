@@ -30,6 +30,13 @@ namespace Assets.Collisions
                 return true;
             }
 
+            if (HitDetector.InsideSphere(_collider.center, _collider.radius, localPosition) &&
+                HitDetector.GetSphereClosestSurfacePoint(_collider.center, _collider.radius, localPosition, out var n, out var p))
+            {
+                result = new CollisionResult(this, _collider.transform.TransformPoint(p), _collider.transform.TransformDirection(n), 0);
+                return true;
+            }
+
             result = null;
             return false;
         }

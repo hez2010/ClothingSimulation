@@ -26,6 +26,22 @@ namespace Assets.Collisions
                 result = new CollisionResult(this, hitInfo.point, hitInfo.normal, (hitInfo.point - position).magnitude / velocity.magnitude);
                 return true;
             }
+
+            var min = _collider.center - _collider.size * 0.5f;
+            var dx = new Vector3(_collider.size.x, 0, 0);
+            var dy = new Vector3(0, _collider.size.y, 0);
+            var dz = new Vector3(0, 0, _collider.size.z);
+            var ax = dx.normalized.WithLength(dx.magnitude);
+            var ay = dy.normalized.WithLength(dy.magnitude);
+            var az = dz.normalized.WithLength(dz.magnitude);
+
+            if (HitDetector.InsideAABB(min, ax, ay, az, localPosition) &&
+                HitDetector.GetAABBClosestSurfacePoint(min, ax, ay, az, localPosition, out var n, out var p))
+            {
+                result = new CollisionResult(this, _collider.transform.TransformPoint(p), _collider.transform.TransformDirection(n), 0);
+                return true;
+            }
+
             //if (HitDetector.HitAABB(
             //    _collider.center - (_collider.size / 2),
             //    _collider.center + (_collider.size / 2),

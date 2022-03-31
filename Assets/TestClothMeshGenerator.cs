@@ -21,7 +21,7 @@ namespace Assets
             {
                 for (var j = 0; j < columns; j++)
                 {
-                    var localPos = new Vector3(i * scale, 0, j * scale) + position;
+                    var localPos = new Vector3(i * scale, j * scale, 0) + position;
                     var index = (i * columns) + j;
                     verticles.Add(localPos);
                     normals.Add(Vector3.back);

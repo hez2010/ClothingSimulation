@@ -12,20 +12,18 @@ namespace Assets
         public readonly Vector3[] Positions;
         public readonly Vector3[] Predicts;
         public readonly Vector3[] Velocities;
-        public readonly bool[] UpdatedVelocities;
         public readonly Vector3[] NoDampingVelocities;
         public readonly float[] Masses;
         public readonly List<ConstraintBase> Constraints;
         public readonly float Damping;
         public readonly int[] Triangles;
 
-        public ClothComponent(float damping, Vector3[] vertices, int[] triangles)
+        public ClothComponent(float damping, float stiffness, Vector3[] vertices, int[] triangles)
         {
             Positions = new Vector3[vertices.Length];
             Predicts = new Vector3[vertices.Length];
             Velocities = new Vector3[vertices.Length];
             NoDampingVelocities = new Vector3[vertices.Length];
-            UpdatedVelocities = new bool[vertices.Length];
             Constraints = new List<ConstraintBase>();
             Damping = damping;
             Triangles = triangles;
@@ -56,7 +54,7 @@ namespace Assets
 
             ComputeMasses();
             //AddBendingConstraints();
-            AddDistanceConstraints();
+            AddDistanceConstraints(stiffness);
         }
 
         private void ComputeMasses()
@@ -75,7 +73,7 @@ namespace Assets
             }
         }
 
-        private void AddDistanceConstraints()
+        private void AddDistanceConstraints(float stiffness)
         {
             var count = Triangles.Length / 3;
             var edges = new HashSet<(int A, int B)>();
@@ -92,7 +90,7 @@ namespace Assets
 
             foreach (var (a, b) in edges)
             {
-                Constraints.Add(new DistanceConstraint(this, 1.0f, a, b));
+                Constraints.Add(new DistanceConstraint(this, stiffness, a, b));
             }
         }
 
