@@ -216,20 +216,20 @@ namespace Assets.Utils
             }
 
             var curIndex = 0;
-            var arrayLen = (_circularSideCount + 1) * 2 + (_circularSideCount + 1) * 2;
+            var arrayLen = /*(_circularSideCount + 1) * 2 +*/ (_circularSideCount + 1) * 2;
             var vertices = new Vector3[arrayLen];
-            //底面
-            vertices[curIndex++] = new Vector3(0, -_height * 0.5f, 0) - _vertexOffset;
-            for (var i = 0; i < _circularSideCount; i++)
-            {
-                vertices[curIndex++] = bottomPoints[i];
-            }
-            //顶面
-            vertices[curIndex++] = new Vector3(0, _height * 0.5f, 0) - _vertexOffset;
-            for (var i = 0; i < _circularSideCount; i++)
-            {
-                vertices[curIndex++] = topPoints[i];
-            }
+            ////底面
+            //vertices[curIndex++] = new Vector3(0, -_height * 0.5f, 0) - _vertexOffset;
+            //for (var i = 0; i < _circularSideCount; i++)
+            //{
+            //    vertices[curIndex++] = bottomPoints[i];
+            //}
+            ////顶面
+            //vertices[curIndex++] = new Vector3(0, _height * 0.5f, 0) - _vertexOffset;
+            //for (var i = 0; i < _circularSideCount; i++)
+            //{
+            //    vertices[curIndex++] = topPoints[i];
+            //}
             //侧面
             for (var i = 0; i < _circularSideCount; i++)
             {
@@ -248,18 +248,18 @@ namespace Assets.Utils
         protected Vector3[] GetNormals()
         {
             var curIndex = 0;
-            var arrayLen = (_circularSideCount + 1) * 2 + (_circularSideCount + 1) * 2;
+            var arrayLen =/* (_circularSideCount + 1) * 2 +*/ (_circularSideCount + 1) * 2;
             var normals = new Vector3[arrayLen];
-            //底面
-            for (var i = 0; i <= _circularSideCount; i++)
-            {
-                normals[curIndex++] = Vector3.down;
-            }
-            //顶面
-            for (var i = 0; i <= _circularSideCount; i++)
-            {
-                normals[curIndex++] = Vector3.up;
-            }
+            ////底面
+            //for (var i = 0; i <= _circularSideCount; i++)
+            //{
+            //    normals[curIndex++] = Vector3.down;
+            //}
+            ////顶面
+            //for (var i = 0; i <= _circularSideCount; i++)
+            //{
+            //    normals[curIndex++] = Vector3.up;
+            //}
             //侧面
             for (var i = 0; i <= _circularSideCount; i++)
             {
@@ -279,30 +279,30 @@ namespace Assets.Utils
         protected int[] GetTriangles()
         {
             var curIndex = 0;
-            var arrayLen = _circularSideCount * 3 + _circularSideCount * 3 + _circularSideCount * 3 * 2;
+            var arrayLen =/* _circularSideCount * 3 + _circularSideCount * 3 +*/ _circularSideCount * 3 * 2;
             var triangles = new int[arrayLen];
-            //底面
-            for (var i = 1; i < _circularSideCount; i++)
-            {
-                triangles[curIndex++] = 0;
-                triangles[curIndex++] = i;
-                triangles[curIndex++] = i + 1;
-            }
-            triangles[curIndex++] = 0;
-            triangles[curIndex++] = _circularSideCount;
-            triangles[curIndex++] = 1;
-            //顶面
-            for (var i = _circularSideCount + 2; i < _circularSideCount * 2 + 1; i++)
-            {
-                triangles[curIndex++] = i;
-                triangles[curIndex++] = _circularSideCount + 1;
-                triangles[curIndex++] = i + 1;
-            }
-            triangles[curIndex++] = _circularSideCount * 2 + 1;
-            triangles[curIndex++] = _circularSideCount + 1;
-            triangles[curIndex++] = _circularSideCount + 2;
+            ////底面
+            //for (var i = 1; i < _circularSideCount; i++)
+            //{
+            //    triangles[curIndex++] = 0;
+            //    triangles[curIndex++] = i;
+            //    triangles[curIndex++] = i + 1;
+            //}
+            //triangles[curIndex++] = 0;
+            //triangles[curIndex++] = _circularSideCount;
+            //triangles[curIndex++] = 1;
+            ////顶面
+            //for (var i = _circularSideCount + 2; i < _circularSideCount * 2 + 1; i++)
+            //{
+            //    triangles[curIndex++] = i;
+            //    triangles[curIndex++] = _circularSideCount + 1;
+            //    triangles[curIndex++] = i + 1;
+            //}
+            //triangles[curIndex++] = _circularSideCount * 2 + 1;
+            //triangles[curIndex++] = _circularSideCount + 1;
+            //triangles[curIndex++] = _circularSideCount + 2;
             //侧面
-            var startIndex = _circularSideCount * 2 + 2;
+            var startIndex = 0;// _circularSideCount * 2 + 2;
             for (var i = 0; i < _circularSideCount; i++)
             {
                 var index = i * 2;
@@ -324,26 +324,26 @@ namespace Assets.Utils
         protected Vector2[] GetUVs()
         {
             var curIndex = 0;
-            var arrayLen = (_circularSideCount + 1) * 2 + (_circularSideCount + 1) * 2;
+            var arrayLen = /*(_circularSideCount + 1) * 2 +*/ (_circularSideCount + 1) * 2;
             var uvs = new Vector2[arrayLen];
-            //底面
-            uvs[curIndex++] = new Vector2(0.5f, 0.5f);//圆心
-            for (var i = 0; i < _circularSideCount; i++)
-            {
-                var rad = i * 1.0f / _circularSideCount * Mathf.PI * 2;
-                var cos = Mathf.Cos(rad);
-                var sin = Mathf.Sin(rad);
-                uvs[curIndex++] = new Vector2(cos, sin) * 0.5f + new Vector2(0.5f, 0.5f);
-            }
-            //顶面
-            uvs[curIndex++] = new Vector2(0.5f, 0.5f);
-            for (var i = 0; i < _circularSideCount; i++)
-            {
-                var rad = i * 1.0f / _circularSideCount * Mathf.PI * 2;
-                var cos = Mathf.Cos(rad);
-                var sin = Mathf.Sin(rad);
-                uvs[curIndex++] = new Vector2(cos, sin) * 0.5f + new Vector2(0.5f, 0.5f);
-            }
+            ////底面
+            //uvs[curIndex++] = new Vector2(0.5f, 0.5f);//圆心
+            //for (var i = 0; i < _circularSideCount; i++)
+            //{
+            //    var rad = i * 1.0f / _circularSideCount * Mathf.PI * 2;
+            //    var cos = Mathf.Cos(rad);
+            //    var sin = Mathf.Sin(rad);
+            //    uvs[curIndex++] = new Vector2(cos, sin) * 0.5f + new Vector2(0.5f, 0.5f);
+            //}
+            ////顶面
+            //uvs[curIndex++] = new Vector2(0.5f, 0.5f);
+            //for (var i = 0; i < _circularSideCount; i++)
+            //{
+            //    var rad = i * 1.0f / _circularSideCount * Mathf.PI * 2;
+            //    var cos = Mathf.Cos(rad);
+            //    var sin = Mathf.Sin(rad);
+            //    uvs[curIndex++] = new Vector2(cos, sin) * 0.5f + new Vector2(0.5f, 0.5f);
+            //}
             //侧面
             var value = 1.0f / _circularSideCount;
             for (var i = 0; i <= _circularSideCount; i++)

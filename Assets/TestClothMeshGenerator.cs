@@ -21,10 +21,10 @@ namespace Assets
             {
                 for (var j = 0; j < columns; j++)
                 {
-                    var localPos = new Vector3(i * scale, j * scale, 0) + position;
+                    var localPos = new Vector3(i * scale, 0, j * scale) + position;
                     var index = (i * columns) + j;
                     verticles.Add(localPos);
-                    normals.Add(Vector3.back);
+                    normals.Add(Vector3.up);
                     tangents.Add(new Vector4(-1, 0, 0, -1));
                     uvs.Add(new Vector2(1.0f / width * j, 1.0f / height * i));
                     if (i < height && j < width)

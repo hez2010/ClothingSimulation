@@ -17,18 +17,20 @@ public class Cloth : MonoBehaviour
     public int SimulationIteration;
     public float Stiffness;
     public float Damping;
+    private int _count;
     //private List<Vector3> _fixedPositions = new();
 
     void Start()
     {
-        Application.targetFrameRate = 60;
+        //Application.targetFrameRate = 60;
         _meshFilter = GetComponent<MeshFilter>();
-        var shape = new FrustumShape(4, 1, 3, MeshPivot.Center);
-        //var gen = new TestClothMeshGenerator();
-        //var mesh = gen.Generate(10, 10, 0.5f, new());
-        _meshFilter.mesh = shape.ShapeMesh;
+        // var shape = new FrustumShape(3, 1, 3, MeshPivot.Center);
+        var gen = new TestClothMeshGenerator();
+        var mesh = gen.Generate(30, 30, 0.25f, new());
+        _meshFilter.mesh = mesh;
 
         _simulator = new(CreateClothComponent(_meshFilter.mesh), SimulationIteration, GetCollisionObjects(), transform);
+        Debug.Log(_simulator.Cloth.Constraints.Count);
         _simulator.Forces.Add(new GravityForce());
         //_simulator.Cloth.Constraints.Add(new FixedPointConstraint(_simulator.Cloth, 0, _meshFilter.mesh.vertices[0]));
     }
@@ -40,13 +42,7 @@ public class Cloth : MonoBehaviour
         var maxY = vertices.Max(i => i.y);
         var fixedVertices = new List<int>();
 
-        for (var i = 0; i < vertices.Length; i++)
-        {
-            if (Mathf.Abs(vertices[i].y - maxY) < float.Epsilon)
-            {
-                fixedVertices.Add(i);
-            }
-        }
+        fixedVertices.Add(11 * 5 + 11);
         //fixedVertices = fixedVertices.OrderBy(i => vertices[i].x).ToList();
         //var step = Mathf.PI * 2 / fixedVertices.Count;
         //var radius = 1f;
@@ -111,6 +107,7 @@ public class Cloth : MonoBehaviour
 
     void Update()
     {
+
         //var offset = transform.InverseTransformVector(((transform.TransformPoint(_sphereColliders[0].center) + transform.TransformPoint(_sphereColliders[1].center)) / 2) - _center);
         //var count = 0;
         //foreach (var c in _simulator.Cloth.Constraints)
@@ -123,6 +120,11 @@ public class Cloth : MonoBehaviour
         if (StartSimulation)
         {
             _simulator.Simulate(1.0f / 60 / SimulationIteration);
+            _count++;
+            if (_count % 60 == 0)
+            {
+                Debug.Log(1 / Time.deltaTime);
+            }
         }
         _meshFilter.mesh.vertices = _simulator.Cloth.Positions;
     }

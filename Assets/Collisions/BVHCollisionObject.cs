@@ -8,9 +8,12 @@ namespace Assets.Collisions
     class BVHCollisionObject : CollisionObject
     {
         public CollisionObject Left, Right;
+        //private CollisionObject[] colliders;
 
         public BVHCollisionObject(CollisionObject[] colliders)
         {
+            //this.colliders = colliders;
+            //return;
             var axis = (int)MathF.Floor(Random.value * 3);
             switch (axis)
             {
@@ -49,6 +52,16 @@ namespace Assets.Collisions
 
         public override bool Hit(Vector3 position, Vector3 velocity, float time, out CollisionResult? result)
         {
+            //foreach (var i in colliders)
+            //{
+            //    if (i.Hit(position, velocity, time, out result))
+            //    {
+            //        return true;
+            //    }
+            //}
+
+            //result = null;
+            //return false;
             if (!HitDetector.HitAABB(Bounds.min, Bounds.max, position, velocity, time, out _, out _))
             {
                 result = null;
