@@ -42,7 +42,7 @@ public class Cloth : MonoBehaviour
         var maxY = vertices.Max(i => i.y);
         var fixedVertices = new List<int>();
 
-        fixedVertices.Add(11 * 5 + 11);
+        fixedVertices.Add(31 * 15 + 16);
         //fixedVertices = fixedVertices.OrderBy(i => vertices[i].x).ToList();
         //var step = Mathf.PI * 2 / fixedVertices.Count;
         //var radius = 1f;
