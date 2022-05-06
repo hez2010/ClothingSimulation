@@ -207,7 +207,7 @@ namespace Assets.Utils
                     axis = az;
                 }
 
-                normal = sideFlag == 1 ? xyz : -xyz;
+                normal = sideFlag == 1 ? -xyz : xyz;
                 var offset = (projOnAxis[axisIndex] - sideFlag * axis.w);
                 closestPosition = o + position - xyz * offset;
                 return true;
