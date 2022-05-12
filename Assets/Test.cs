@@ -12,7 +12,7 @@ public class Test : MonoBehaviour
     {
         var gen = new TestClothMeshGenerator();
         var component = GetComponent<SkinnedMeshRenderer>();
-        component.sharedMesh = gen.Generate(30, 30, 2, new Vector3());
+        component.sharedMesh = gen.Generate(25, 25, 0.25f, new Vector3(0, 0, 0));
     }
 
     // Update is called once per frame

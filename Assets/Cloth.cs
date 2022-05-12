@@ -114,7 +114,7 @@ public class Cloth : MonoBehaviour
         //{
         //    if (c is FixedPointConstraint fc)
         //    {
-        //        fc.Position = _fixedPositions[count++] + offset;
+        //        fc.Position.x += Mathf.Sin(Time.time) / 16;
         //    }
         //}
         if (StartSimulation)
