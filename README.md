@@ -1,3 +1,3 @@
 # Clothing Simulation
 
-A generic animation module for clothing simulation using Position based Dynamics.
+A generic Unity animation module for clothing simulation using Position Based Dynamics.
